@@ -39,7 +39,7 @@
 
   <transition v-show="isEdit" name="slide-fade">
     <n-flex justify="center" style="margin-left: 20px">
-      <n-flex vertical :style="{ width: 520 * ratio }">
+      <n-flex vertical :style="{ width: 520 * ratio, marginRight: '10px' }">
         <n-input
           type="textarea"
           placeholder="请输入谱面内容"
