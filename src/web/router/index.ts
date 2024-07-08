@@ -17,7 +17,6 @@ const router = createRouter({
       name: "score",
       component: ScoreView,
     },
-
     {
       path: "/preview",
       name: "preview",

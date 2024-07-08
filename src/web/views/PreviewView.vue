@@ -22,7 +22,11 @@
 </style>
 
 <template>
-  <transition v-show="!currentSong" @after-leave="isPreview = true" name="slide-fade">
+  <transition
+    v-show="!currentSong"
+    @after-leave="nextAction === 'preview' ? (isPreview = true) : (isAnalysis = true)"
+    name="slide-fade"
+  >
     <n-flex vertical justify="center">
       <n-checkbox-group v-model:value="showOptions">
         <n-space item-style="display: flex;">
@@ -45,7 +49,11 @@
     ></preview-canvas>
   </transition>
 
-  <transition v-show="isPreview" name="slide-fade">
+  <transition v-show="isAnalysis" name="slide-fade">
+    <chart-component :current-song="currentSong" :current-difficulty="currentDifficulty" :is-analysis="isAnalysis" />
+  </transition>
+
+  <transition v-show="isPreview || isAnalysis" name="slide-fade">
     <n-icon class="back-songs" @click="backToSongs" size="30">
       <back-icon></back-icon>
     </n-icon>
@@ -64,17 +72,20 @@ import {
   NCheckboxGroup,
   NSpace,
 } from "naive-ui";
-import { basicColumns, createlevelSubCloumn } from "../scripts/stores/song";
+import { basicColumns, createLevelSubCloumn } from "../scripts/stores/song";
 import type { DifficlutyType, Song } from "@server/types";
 import { ArrowBackCircleOutline as BackIcon } from "@vicons/ionicons5";
 import SongTable from "../components/SongTable.vue";
 import PreviewCanvas from "../components/PreviewCanvas.vue";
+import ChartComponent from "../components/ChartComponent.vue";
 
 const currentSong = ref<Song>();
 const currentDifficulty = ref<DifficlutyType>("oni");
 
-const showOptions = ref<string[]>(["bar"]);
+const showOptions = ref<("bar" | "bpm" | "hs")[]>(["bar", "bpm", "hs"]);
+const nextAction = ref<"preview" | "analysis">("preview");
 const isPreview = ref(false);
+const isAnalysis = ref(false);
 
 const columns: (DataTableColumn<Song> | DataTableColumnGroup<Song>)[] = [
   ...basicColumns,
@@ -91,25 +102,39 @@ function createDiffultyColumn(title: string, key: DifficlutyType): DataTableColu
     key,
     align: "center",
     children: [
-      createlevelSubCloumn(key),
+      createLevelSubCloumn(key),
       {
         title: "操作",
         key: `${key}handle`,
         align: "center",
-        width: 110,
+        width: 120,
         render(row, rowIndex) {
           const d = row.difficulties.find((d) => d.name === key);
           if (d && d.level !== 0) {
-            return h(
-              NButton,
-              {
-                onClick() {
-                  currentSong.value = row;
-                  currentDifficulty.value = key;
+            return h(NSpace, [
+              h(
+                NButton,
+                {
+                  onClick() {
+                    currentSong.value = row;
+                    currentDifficulty.value = key;
+                    nextAction.value = "preview";
+                  },
                 },
-              },
-              () => "预览"
-            );
+                () => "预览"
+              ),
+              h(
+                NButton,
+                {
+                  onClick() {
+                    currentSong.value = row;
+                    currentDifficulty.value = key;
+                    nextAction.value = "analysis";
+                  },
+                },
+                () => "分析"
+              ),
+            ]);
           }
           return "";
         },
@@ -120,6 +145,7 @@ function createDiffultyColumn(title: string, key: DifficlutyType): DataTableColu
 
 async function backToSongs() {
   isPreview.value = false;
+  isAnalysis.value = false;
   await new Promise((resolve) => setTimeout(() => resolve(true), 250));
   currentSong.value = undefined;
 }

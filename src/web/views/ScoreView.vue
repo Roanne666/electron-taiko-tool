@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { type DataTableColumn, type DataTableColumnGroup, NFlex } from "naive-ui";
-import { basicColumns, createlevelSubCloumn } from "../scripts/stores/song";
+import { basicColumns, createLevelSubCloumn } from "../scripts/stores/song";
 import type { DifficlutyType, Song } from "@server/types";
 import SongTable from "../components/SongTable.vue";
 
@@ -48,7 +48,7 @@ function createDiffultyColumn(title: string, key: DifficlutyType): DataTableColu
     key,
     align: "center",
     children: [
-      createlevelSubCloumn(key),
+      createLevelSubCloumn(key),
       {
         title: "分数",
         key: `${key}score`,

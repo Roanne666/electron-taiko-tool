@@ -1,4 +1,4 @@
-import { NOTE_BORDER } from "../beatmap/const";
+import { NOTE_BORDER } from "./const";
 import { ratio } from "../stores/global";
 
 export abstract class DrawAction {

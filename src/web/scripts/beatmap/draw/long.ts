@@ -1,6 +1,6 @@
-import { NOTE_BORDER } from "../../beatmap/const";
-import { DrawRectAction, type DrawAction } from "../../utils/drawAction";
-import { getNoteAction } from "../../beatmap/draw/note";
+import { NOTE_BORDER } from "../const";
+import { DrawRectAction, type DrawAction } from "../drawAction";
+import { getNoteAction } from "./note";
 
 /**
  * 绘制长条（黄条，气球）
@@ -12,7 +12,14 @@ import { getNoteAction } from "../../beatmap/draw/note";
  * @param radiusType 半径类型，区分大小音符
  * @param balloonNum 气球数
  */
-export function getLongActions(options: { x: number; y: number; interval: number; color: string; radius: number; drawType: "start" | "middle" | "end" }) {
+export function getLongActions(options: {
+  x: number;
+  y: number;
+  interval: number;
+  color: string;
+  radius: number;
+  drawType: "start" | "middle" | "end";
+}) {
   const { x, y, interval, color, drawType, radius } = options;
 
   const actions: DrawAction[] = [];
@@ -28,6 +35,8 @@ export function getLongActions(options: { x: number; y: number; interval: number
   } else {
     const noteAction = getNoteAction(x, y, color, radius, "right");
     actions.push(noteAction);
+    const fillActions = getFillActions(x - interval, y, color, interval, radius);
+    actions.push(...fillActions);
   }
 
   return actions;
@@ -38,18 +47,18 @@ function getFillActions(x: number, y: number, color: string, interval: number, r
   // 上下黑边
   const blackBorderAction = new DrawRectAction({
     color: NOTE_BORDER,
-    x: x - 1,
+    x: x,
     y: y - radius,
-    width: interval + 2,
+    width: interval,
     height: radius * 2,
   });
 
   // 上下白边
   const whiteBorderAction = new DrawRectAction({
     color: "white",
-    x: x - 2,
+    x: x - 1,
     y: y - radius * 0.9,
-    width: interval + 4,
+    width: interval + 2,
     height: radius * 2 * 0.9,
   });
 

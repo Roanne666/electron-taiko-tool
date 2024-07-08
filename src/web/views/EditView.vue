@@ -102,7 +102,7 @@ import {
   NSpace,
   NPopover,
 } from "naive-ui";
-import { basicColumns, createlevelSubCloumn } from "../scripts/stores/song";
+import { basicColumns, createLevelSubCloumn } from "../scripts/stores/song";
 import type { DifficlutyType, DifficultyInfo, Song } from "@server/types";
 import { ArrowBackCircleOutline as BackIcon } from "@vicons/ionicons5";
 import SongTable from "../components/SongTable.vue";
@@ -159,7 +159,7 @@ function createDiffultyColumn(title: string, key: DifficlutyType): DataTableColu
     key,
     align: "center",
     children: [
-      createlevelSubCloumn(key),
+      createLevelSubCloumn(key),
       {
         title: "操作",
         key: `${key}handle`,

@@ -1,6 +1,6 @@
 import type { DifficultyInfo } from "@server/types";
-import { BEATMAP_BG_COLOR, SONG_NAME_FONT, DIFFICULTY_FONT, LEVEL_FONT, CANVAS_WIDTH } from "../../beatmap/const";
-import { DrawRectAction, DrawTextAction } from "../../utils";
+import { BEATMAP_BG_COLOR, SONG_NAME_FONT, DIFFICULTY_FONT, LEVEL_FONT, CANVAS_WIDTH } from "../const";
+import { DrawRectAction, DrawTextAction } from "../drawAction";
 
 const difficultyNames = {
   easy: "梅",
