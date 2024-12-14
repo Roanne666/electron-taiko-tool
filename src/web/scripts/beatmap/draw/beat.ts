@@ -1,5 +1,15 @@
-import { MARGIN_X, BEAT_WIDTH, MARGIN_Y, ROW_HEIGHT, ROW_SPACE, GOGOTIME_BG_COLOR, DARK_LINE_COLOR, LIGHT_LINE_COLOR } from "../../beatmap/const";
-import { DrawRectAction, DrawStrokeAction, type DrawAction } from "../../utils/drawAction";
+import {
+  MARGIN_X,
+  BEAT_WIDTH,
+  MARGIN_Y,
+  ROW_HEIGHT,
+  ROW_SPACE,
+  GOGOTIME_BG_COLOR,
+  DARK_LINE_COLOR,
+  LIGHT_LINE_COLOR,
+  MARK_FONT,
+} from "../const";
+import { DrawRectAction, DrawStrokeAction, DrawTextAction, type DrawAction } from "../drawAction";
 import type { BeatPos, Change } from "../../types";
 
 /**
@@ -10,7 +20,14 @@ import type { BeatPos, Change } from "../../types";
  * @param change
  * @returns
  */
-export function getBeatActions(row: number, rowBeatCount: number, beatPos: BeatPos, change: Change) {
+export function getBeatActions(
+  row: number,
+  rowBeatCount: number,
+  barBeatCount: number,
+  barCount: number,
+  beatPos: BeatPos,
+  change: Change
+) {
   const BEGIN_X = MARGIN_X + rowBeatCount * BEAT_WIDTH;
   const BEGIN_Y = MARGIN_Y + (ROW_HEIGHT + ROW_SPACE) * row - 15;
   const END_X = MARGIN_X + rowBeatCount * BEAT_WIDTH;
@@ -21,7 +38,12 @@ export function getBeatActions(row: number, rowBeatCount: number, beatPos: BeatP
   // gogotime背景色
   if (change.gogotime) actions.push(getGogotimeAction(rowBeatCount, BEGIN_X, BEGIN_Y));
 
-  const { barEndLineAction, barStartLineAction, beatEndLineAction, beatSubLine } = getLineActions(BEGIN_X, BEGIN_Y, END_X, END_Y);
+  const { barEndLineAction, barStartLineAction, beatEndLineAction, beatSubLine } = getLineActions(
+    BEGIN_X,
+    BEGIN_Y,
+    END_X,
+    END_Y
+  );
 
   // 节拍竖线，如果是小节起始拍，则画小节起始线，最后一拍时画小节结束线
   if (beatPos === "start") {
@@ -34,6 +56,18 @@ export function getBeatActions(row: number, rowBeatCount: number, beatPos: BeatP
   } else {
     actions.push(beatSubLine);
     actions.push(barEndLineAction);
+  }
+
+  // 小节数字
+  if (barBeatCount === 0) {
+    const action = new DrawTextAction({
+      font: MARK_FONT,
+      color: "black",
+      text: `${barCount + 1}`,
+      x: MARGIN_X + rowBeatCount * BEAT_WIDTH + 5,
+      y: MARGIN_Y + (ROW_HEIGHT + ROW_SPACE) * row - 5,
+    });
+    actions.push(action);
   }
 
   return actions;

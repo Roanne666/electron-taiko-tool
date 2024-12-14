@@ -3,6 +3,8 @@ import type { DataTableColumn, DataTableColumnGroup } from "naive-ui";
 import type { TableBaseColumn } from "naive-ui/es/data-table/src/interface";
 import { ElectronAPIs } from "../../../api";
 import { reactive } from "vue";
+import { BeatmapStat } from "../types";
+import { analyzeBeatmap } from "../beatmap";
 
 // ------- 常量 -------
 export type DifficultyTypes = "all" | DifficlutyType;
@@ -57,13 +59,13 @@ export const basicColumns: (DataTableColumn<Song> | DataTableColumnGroup<Song>)[
  * @param key
  * @returns
  */
-export const createlevelSubCloumn = (key: DifficlutyType): TableBaseColumn<Song> => {
+export const createLevelSubCloumn = (key: DifficlutyType): TableBaseColumn<Song> => {
   return {
     title: "等级",
     key: `${key}level`,
     align: "center",
-    width: 80,
-    render(row, rowIndex) {
+    width: 50,
+    render(row) {
       const d = row.difficulties.find((d) => d.name === key);
       return d ? `${d.level}★` : "";
     },
@@ -78,14 +80,14 @@ export const createlevelSubCloumn = (key: DifficlutyType): TableBaseColumn<Song>
 export const allSongs = reactive<Song[]>([]);
 
 /**
- * 展示在页面的歌曲
- */
-export const showSongs = reactive<Song[]>([]);
-
-/**
  * 歌曲类目
  */
 export const genres = reactive<string[]>([]);
+
+/**
+ * 所有谱面数据表
+ */
+export const allBeatmapStats = reactive<BeatmapStat[]>([]);
 
 /**
  * 获取所有歌曲
@@ -95,16 +97,26 @@ export async function fetchAllSongs() {
     const apis = window.electronAPI as ElectronAPIs;
     const newSongs = await apis.getSongs();
 
-    console.log(newSongs);
-
     allSongs.length = 0;
-    allSongs.push(...newSongs);
-    showSongs.length = 0;
-    showSongs.push(...newSongs);
 
-    for (const s of allSongs) {
+    for (const s of newSongs) {
+      allSongs.push(s);
+
+      // for (const d of s.difficulties) {
+      //   const { bpmStats, hsStats, noteStats, speedStats } = analyzeBeatmap(d.beatmapData);
+      //   allBeatmapStats.push({
+      //     songName: s.name,
+      //     genre: s.genre,
+      //     difficultyType: d.name,
+      //     level: d.level,
+      //     beatmapStats: { bpmStats, hsStats, noteStats, speedStats },
+      //   });
+      // }
+
       if (genres.includes(s.genre)) continue;
       genres.push(s.genre);
     }
+
+    console.log(allSongs);
   }
 }

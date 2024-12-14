@@ -33,17 +33,36 @@
 import "./assets/base.css";
 import { RouterLink, RouterView } from "vue-router";
 import { NLayout, NLayoutSider, NLayoutContent, NMenu, type MenuOption, NIcon, NMessageProvider } from "naive-ui";
-import { MusicalNotesOutline as MusicIcon, BarcodeOutline as PreviewIcon, CompassOutline as GuideIcon } from "@vicons/ionicons5";
-import { Edit as EditIcon } from "@vicons/carbon";
-import { h, type Component, Transition } from "vue";
+import {
+  MusicalNotesOutline as MusicIcon,
+  BarcodeOutline as PreviewIcon,
+  CompassOutline as GuideIcon,
+} from "@vicons/ionicons5";
+import { Edit as EditIcon, FaceCool as RecommendIcon } from "@vicons/carbon";
+import { h, type Component, Transition, onMounted } from "vue";
 import { fetchAllSongs } from "./scripts/stores/song";
 import { hideSideBar } from "./scripts/stores/global";
 
-fetchAllSongs();
+let fetching = false;
+
+document.body.addEventListener("keydown", async (e) => {
+  if (fetching) return;
+  if (e.key === "F5") {
+    fetching = true;
+    await fetchAllSongs();
+    fetching = false;
+  }
+});
+
+onMounted(async () => {
+  fetching = true;
+  await fetchAllSongs();
+  fetching = false;
+});
 
 const menuOptions: MenuOption[] = [
   createMenuOption("使用指南", "/", GuideIcon),
-  createMenuOption("乐曲成绩", "/score", MusicIcon),
+  createMenuOption("歌曲成绩", "/score", MusicIcon),
   createMenuOption("谱面预览", "/preview", PreviewIcon),
   createMenuOption("谱面编辑", "/edit", EditIcon),
 ];

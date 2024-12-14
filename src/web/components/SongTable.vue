@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import {
   NCheckboxGroup,
   NSpace,
@@ -69,7 +69,6 @@ import {
   genres,
   levels,
   scores,
-  showSongs,
   type DifficultyTypes,
   type LevelTypes,
   type ScoreTypes,
@@ -85,6 +84,8 @@ const genreSelect = ref(genres);
 const difficultySelect = ref<DifficultyTypes>("all");
 const levelSelect = ref<LevelTypes>(0);
 const scoreSelcet = ref<ScoreTypes>("全部");
+
+const showSongs = reactive<Song[]>([]);
 
 const emit = defineEmits<{ changeOptions: [options: string[]] }>();
 

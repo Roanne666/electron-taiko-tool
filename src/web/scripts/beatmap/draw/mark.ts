@@ -1,6 +1,6 @@
 import { MARK_FONT, ROW_SPACE, ROW_HEIGHT, BEAT_WIDTH, MARGIN_X, MARGIN_Y } from "../../beatmap/const";
-import { DrawTextAction } from "../../utils/drawAction";
-import type { Change } from "../../types";
+import { Change } from "../../types";
+import { DrawTextAction } from "../drawAction";
 
 /**
  * 绘制bpm，scroll等相关标记
@@ -8,26 +8,23 @@ import type { Change } from "../../types";
  * @param gridInfo
  * @param options
  */
-export function getMarkActions(options: { bar: number; barBeatCount: number; row: number; rowBeatCount: number; showBar: boolean; change?: Change }) {
-  const { bar, barBeatCount, row, rowBeatCount, showBar, change } = options;
+export function getMarkActions(options: {
+  bar: number;
+  row: number;
+  rowBeatCount: number;
+  isStart: boolean;
+  change?: Change;
+}) {
+  const { bar, row, rowBeatCount, change } = options;
 
   const actions: DrawTextAction[] = [];
-
-  if (barBeatCount === 0 && showBar) {
-    const action = new DrawTextAction({
-      font: MARK_FONT,
-      color: "black",
-      text: `${bar}`,
-      x: MARGIN_X + rowBeatCount * BEAT_WIDTH + 5,
-      y: MARGIN_Y + (ROW_HEIGHT + ROW_SPACE) * row - 5,
-    });
-    actions.push(action);
-  }
 
   // 和小节数字标记的间隔
   let margin = 20;
   if (bar >= 10) margin = 25;
   if (bar >= 100) margin = 30;
+
+  if (!options.isStart) margin = 0;
 
   const firstX = MARGIN_X + rowBeatCount * BEAT_WIDTH + margin;
   const firstY = MARGIN_Y + (ROW_HEIGHT + ROW_SPACE) * row - 5;

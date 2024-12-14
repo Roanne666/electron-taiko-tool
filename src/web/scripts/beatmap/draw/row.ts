@@ -1,6 +1,5 @@
 import { PART_BG_COLOR, ROW_HEIGHT, ROW_SPACE, MARGIN_Y, CANVAS_WIDTH } from "../../beatmap/const";
-import { ratio } from "../../stores/global";
-import { DrawRectAction } from "../../utils";
+import { DrawRectAction } from "../drawAction";
 
 /**
  * 绘制行
@@ -8,7 +7,7 @@ import { DrawRectAction } from "../../utils";
  * @param row
  * @param canvasWidth
  */
-export function drawRow(context: CanvasRenderingContext2D, row: number, canvasWidth: number) {
+export function drawRow(context: CanvasRenderingContext2D, row: number) {
   // 黑色边
   new DrawRectAction({
     color: "black",

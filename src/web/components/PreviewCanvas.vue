@@ -7,16 +7,29 @@
       <n-back-top :right="props.backTopRight" :bottom="20" />
     </n-scrollbar>
     <n-flex justify="center">
-      <audio ref="audioRef" controls oncontextmenu="return false" controlslist="nodownload" :style="{ width: ratio * 880 + 'px', height: '45px' }" />
+      <audio
+        ref="audioRef"
+        controls
+        oncontextmenu="return false"
+        controlslist="nodownload"
+        :style="{ width: ratio * 880 + 'px', height: '45px' }"
+      />
     </n-flex>
   </n-flex>
 </template>
 
 <script setup lang="ts">
-import { BEAT_WIDTH, MARGIN_X, MARGIN_Y, ROW_HEIGHT, ROW_SPACE, createBeatmap } from "../scripts/beatmap";
+import {
+  BEAT_WIDTH,
+  DrawStrokeAction,
+  MARGIN_X,
+  MARGIN_Y,
+  ROW_HEIGHT,
+  ROW_SPACE,
+  drawBeatmap,
+  Beatmap,
+} from "../scripts/beatmap";
 import { ratio } from "../scripts/stores/global";
-import type { Beatmap } from "../scripts/types";
-import { DrawStrokeAction, getBeatmapRows } from "../scripts/utils";
 import type { DifficlutyType, Song } from "@server/types";
 import { NFlex, NScrollbar, NBackTop } from "naive-ui";
 import { ref, watch } from "vue";
@@ -50,7 +63,7 @@ watch([props, ratio], () => {
     const showBar = showOptions.includes("bar");
     const showBpm = showOptions.includes("bpm");
     const showHs = showOptions.includes("hs");
-    const { beatmap, imageData } = createBeatmap(canvasRef.value, currentSong, currentDifficulty, {
+    const { beatmap, imageData } = drawBeatmap(canvasRef.value, currentSong, currentDifficulty, {
       showBar,
       showBpm,
       showHs,
@@ -62,24 +75,22 @@ watch([props, ratio], () => {
       if (!canvasRef.value) return;
       const context = canvasRef.value.getContext("2d") as CanvasRenderingContext2D;
 
-      const beatmapRows = getBeatmapRows(beatmap);
-
       nextFrame(() => {
         if (!audioRef.value) return false;
         if (imageUid !== imageData.uid) return false;
         if (audioRef.value.paused) return true;
         if (audioRef.value.currentTime + currentSong.offset <= 0) return true;
 
-        const { currentX, row } = getCurrentPos(currentSong, beatmap, beatmapRows);
+        const { x, y } = getCurrentPos(currentSong, beatmap);
 
         context.drawImage(sourceImage, 0, 0);
         new DrawStrokeAction({
           color: "red",
           lineWidth: 2,
-          x1: currentX,
-          y1: MARGIN_Y + row * (ROW_SPACE + ROW_HEIGHT) - 15,
-          x2: currentX,
-          y2: MARGIN_Y + row * (ROW_SPACE + ROW_HEIGHT) + 45,
+          x1: x,
+          y1: y - 15,
+          x2: x,
+          y2: y + +45,
         }).draw(context);
 
         return true;
@@ -98,15 +109,16 @@ function nextFrame(callback: () => boolean) {
   });
 }
 
-function getCurrentPos(song: Song, beatmap: Beatmap, beatmapRows: number[]): { currentX: number; row: number } {
-  if (!audioRef.value) return { currentX: 0, row: 0 };
+function getCurrentPos(song: Song, beatmap: Beatmap) {
+  let x = MARGIN_X;
+  let y = MARGIN_Y;
 
-  let currentX = MARGIN_X;
+  if (!audioRef.value) return { x, y };
 
-  let totalBeatCount = 0;
+  let currentNoteIndex = 0;
 
-  let row = 0;
-  let rowBeatCount = 0;
+  let currentRow = 0;
+  let rowBeatCount = -1;
 
   // beat per second，每秒经过的节拍
   let bps = song.bpm / 60;
@@ -117,38 +129,46 @@ function getCurrentPos(song: Song, beatmap: Beatmap, beatmapRows: number[]): { c
   // 当前的延迟
   let delay = 0;
 
-  let time = audioRef.value.currentTime + song.offset - delay;
-  while (time > 0) {
-    const beat = beatmap.beats[totalBeatCount];
-    for (let i = 0; i < beat.length; i++) {
-      const subCount = i / beat.length;
-      const change = beatmap.changes[totalBeatCount + subCount];
-      if (change?.bpm) bps = change.bpm / 60;
-      if (change?.measure) speed = change.measure[1] / 4;
-      if (change?.delay) delay = change.delay;
+  const firstChange = beatmap.changes[0];
+  if (firstChange.bpm) bps = firstChange.bpm / 60;
+  if (firstChange.measure) speed = firstChange.measure[1] / 4;
+  if (firstChange.delay) delay = firstChange.delay;
 
-      const subBeatTime = 1 / beat.length / bps / speed;
-      if (time > subBeatTime) {
-        time -= subBeatTime;
-      } else {
-        const restCount = time * bps * speed;
-        const finalCount = subCount + restCount;
-        currentX = MARGIN_X + (rowBeatCount + finalCount) * BEAT_WIDTH;
-        time = 0;
-        break;
+  let time = audioRef.value.currentTime + song.offset - delay;
+  for (const bar of beatmap.bars) {
+    for (const beat of bar) {
+      rowBeatCount += 1;
+      if (rowBeatCount >= beatmap.rows[currentRow]) {
+        rowBeatCount = 0;
+        currentRow += 1;
       }
 
-      if (i === beat.length - 1) {
-        rowBeatCount += 1;
-        if (rowBeatCount >= beatmapRows[row]) {
-          rowBeatCount = 0;
-          row += 1;
+      for (let i = 0; i < beat.length; i++) {
+        const noteCount = i / beat.length;
+
+        currentNoteIndex += 1;
+        const change = beatmap.changes.find((c) => c.noteIndex === currentNoteIndex);
+        if (change) {
+          if (change.bpm) bps = change.bpm / 60;
+          if (change.measure) speed = change.measure[1] / 4;
+          if (change.delay) delay = change.delay;
         }
-        totalBeatCount += 1;
+
+        const noteTime = 1 / beat.length / bps / speed;
+        if (time > noteTime) {
+          time -= noteTime;
+        } else {
+          const restCount = time * bps * speed;
+          const finalCount = noteCount + restCount;
+          x = MARGIN_X + (rowBeatCount + finalCount) * BEAT_WIDTH;
+          y = MARGIN_Y + currentRow * (ROW_SPACE + ROW_HEIGHT);
+          time = 0;
+          return { x, y };
+        }
       }
     }
   }
 
-  return { currentX, row };
+  return { x, y };
 }
 </script>
