@@ -7,7 +7,7 @@
       </n-space>
     </n-checkbox-group>
   </div>
-  <div>
+<!--   <div>
     <n-radio-group v-model:value="difficultySelect" name="radiogroup">
       <n-space>
         <span>难度：</span>
@@ -19,7 +19,7 @@
         <n-radio value="extreme"> 里 </n-radio>
       </n-space>
     </n-radio-group>
-  </div>
+  </div> -->
   <div>
     <n-radio-group v-model:value="levelSelect" name="radiogroup">
       <n-space>

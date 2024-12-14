@@ -1,4 +1,4 @@
-export type DifficlutyType = "easy" | "normal" | "hard" | "oni" | "extreme";
+export type DifficlutyType = /* "easy" | "normal" | "hard" | */ "oni" | "extreme";
 
 export type DifficultyInfo = {
   name: DifficlutyType;
