@@ -22,11 +22,7 @@
 </style>
 
 <template>
-  <transition
-    v-show="!currentSong"
-    @after-leave="nextAction === 'preview' ? (isPreview = true) : (isAnalysis = true)"
-    name="slide-fade"
-  >
+  <transition v-show="!currentSong" @after-leave="nextAction === 'preview' ? (isPreview = true) : (isAnalysis = true)" name="slide-fade">
     <n-flex vertical justify="center">
       <n-checkbox-group v-model:value="showOptions">
         <n-space item-style="display: flex;">
@@ -41,12 +37,7 @@
   </transition>
 
   <transition v-show="isPreview" name="slide-fade">
-    <preview-canvas
-      :current-song="currentSong"
-      :current-difficulty="currentDifficulty"
-      :backTopRight="100"
-      :showOptions="showOptions"
-    ></preview-canvas>
+    <preview-canvas :current-song="currentSong" :current-difficulty="currentDifficulty" :backTopRight="100" :showOptions="showOptions"></preview-canvas>
   </transition>
 
   <transition v-show="isAnalysis" name="slide-fade">
@@ -62,16 +53,7 @@
 
 <script setup lang="ts">
 import { Transition, h, ref } from "vue";
-import {
-  NButton,
-  NIcon,
-  type DataTableColumn,
-  type DataTableColumnGroup,
-  NFlex,
-  NCheckbox,
-  NCheckboxGroup,
-  NSpace,
-} from "naive-ui";
+import { NButton, NIcon, type DataTableColumn, type DataTableColumnGroup, NFlex, NCheckbox, NCheckboxGroup, NSpace } from "naive-ui";
 import { basicColumns, createLevelSubCloumn } from "../scripts/stores/song";
 import type { DifficlutyType, Song } from "@server/types";
 import { ArrowBackCircleOutline as BackIcon } from "@vicons/ionicons5";
@@ -89,9 +71,9 @@ const isAnalysis = ref(false);
 
 const columns: (DataTableColumn<Song> | DataTableColumnGroup<Song>)[] = [
   ...basicColumns,
-  // createDiffultyColumn("梅", "easy"),
-  // createDiffultyColumn("竹", "normal"),
-  // createDiffultyColumn("松", "hard"),
+  createDiffultyColumn("梅", "easy"),
+  createDiffultyColumn("竹", "normal"),
+  createDiffultyColumn("松", "hard"),
   createDiffultyColumn("鬼", "oni"),
   createDiffultyColumn("里", "extreme"),
 ];

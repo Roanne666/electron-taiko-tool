@@ -4,7 +4,6 @@ import type { TableBaseColumn } from "naive-ui/es/data-table/src/interface";
 import { ElectronAPIs } from "../../../api";
 import { reactive } from "vue";
 import { BeatmapStat } from "../types";
-import { analyzeBeatmap } from "../beatmap";
 
 // ------- 常量 -------
 export type DifficultyTypes = "all" | DifficlutyType;
@@ -41,16 +40,16 @@ export type ScoreTypes = keyof typeof scores;
  */
 export const basicColumns: (DataTableColumn<Song> | DataTableColumnGroup<Song>)[] = [
   {
-    title: "曲名",
-    key: "name",
-    align: "center",
-    width: 250,
-  },
-  {
     title: "类目",
     key: "genre",
     align: "center",
     width: 150,
+  },
+  {
+    title: "曲名",
+    key: "name",
+    align: "center",
+    width: 250,
   },
 ];
 

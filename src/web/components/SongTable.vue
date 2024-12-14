@@ -7,7 +7,7 @@
       </n-space>
     </n-checkbox-group>
   </div>
-<!--   <div>
+  <div>
     <n-radio-group v-model:value="difficultySelect" name="radiogroup">
       <n-space>
         <span>难度：</span>
@@ -19,7 +19,7 @@
         <n-radio value="extreme"> 里 </n-radio>
       </n-space>
     </n-radio-group>
-  </div> -->
+  </div>
   <div>
     <n-radio-group v-model:value="levelSelect" name="radiogroup">
       <n-space>
@@ -54,25 +54,8 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from "vue";
-import {
-  NCheckboxGroup,
-  NSpace,
-  NCheckbox,
-  NRadioGroup,
-  NRadio,
-  NDataTable,
-  type DataTableColumn,
-  type DataTableColumnGroup,
-} from "naive-ui";
-import {
-  allSongs,
-  genres,
-  levels,
-  scores,
-  type DifficultyTypes,
-  type LevelTypes,
-  type ScoreTypes,
-} from "../scripts/stores/song";
+import { NCheckboxGroup, NSpace, NCheckbox, NRadioGroup, NRadio, NDataTable, type DataTableColumn, type DataTableColumnGroup } from "naive-ui";
+import { allSongs, genres, levels, scores, type DifficultyTypes, type LevelTypes, type ScoreTypes } from "../scripts/stores/song";
 import type { Song } from "@server/types";
 
 const props = defineProps<{
@@ -106,11 +89,7 @@ watch([genreSelect, difficultySelect, levelSelect, scoreSelcet], () => {
 
       let scoreMatch = scoreSelcet.value === "全部";
       if (!scoreMatch) {
-        scoreMatch = s.difficulties.find(
-          (d) => d.score >= scores[scoreSelcet.value][0] && d.score < scores[scoreSelcet.value][1]
-        )
-          ? true
-          : false;
+        scoreMatch = s.difficulties.find((d) => d.score >= scores[scoreSelcet.value][0] && d.score < scores[scoreSelcet.value][1]) ? true : false;
       }
 
       isMatch = levelMatch && scoreMatch;

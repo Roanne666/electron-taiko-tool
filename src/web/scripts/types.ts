@@ -30,8 +30,8 @@ export type Stat = {
 };
 
 export type BeatmapStat = {
-  songName: string;
   genre: string;
+  songName: string;
   difficultyType: DifficlutyType;
   level: number;
   beatmapStats: { bpmStats: Stat[]; hsStats: Stat[]; speedStats: Stat[]; noteStats: Stat[] };

@@ -35,9 +35,9 @@ import SongTable from "../components/SongTable.vue";
 
 const columns: (DataTableColumn<Song> | DataTableColumnGroup<Song>)[] = [
   ...basicColumns,
-  // createDiffultyColumn("梅", "easy"),
-  // createDiffultyColumn("竹", "normal"),
-  // createDiffultyColumn("松", "hard"),
+  createDiffultyColumn("梅", "easy"),
+  createDiffultyColumn("竹", "normal"),
+  createDiffultyColumn("松", "hard"),
   createDiffultyColumn("鬼", "oni"),
   createDiffultyColumn("里", "extreme"),
 ];

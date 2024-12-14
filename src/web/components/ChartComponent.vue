@@ -7,9 +7,7 @@
 
 <template>
   <div style="margin-left: 50px">
-    <div v-if="currentSong" style="font-size: 24px; margin-bottom: 30px; margin-top: -4px; user-select: none">
-      {{ currentSong.name }}（{{ getDifficultyName() }}）谱面分析
-    </div>
+    <div v-if="currentSong" style="font-size: 24px; margin-bottom: 30px; margin-top: -4px; user-select: none">{{ currentSong.name }}（{{ getDifficultyName() }}）谱面分析</div>
     <n-flex>
       <div ref="bpmChartRef" class="chart" />
       <div ref="hsChartRef" class="chart" />
@@ -63,9 +61,9 @@ watch(props, () => {
 });
 
 function getDifficultyName() {
-  // if (props.currentDifficulty === "easy") return "梅";
-  // if (props.currentDifficulty === "normal") return "竹";
-  // if (props.currentDifficulty === "hard") return "松";
+  if (props.currentDifficulty === "easy") return "梅";
+  if (props.currentDifficulty === "normal") return "竹";
+  if (props.currentDifficulty === "hard") return "松";
   if (props.currentDifficulty === "oni") return "鬼";
   if (props.currentDifficulty === "extreme") return "里";
   return "";
