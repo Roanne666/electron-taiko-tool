@@ -63,9 +63,9 @@ watch(props, () => {
 });
 
 function getDifficultyName() {
-  if (props.currentDifficulty === "easy") return "梅";
-  if (props.currentDifficulty === "normal") return "竹";
-  if (props.currentDifficulty === "hard") return "松";
+  // if (props.currentDifficulty === "easy") return "梅";
+  // if (props.currentDifficulty === "normal") return "竹";
+  // if (props.currentDifficulty === "hard") return "松";
   if (props.currentDifficulty === "oni") return "鬼";
   if (props.currentDifficulty === "extreme") return "里";
   return "";
