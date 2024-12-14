@@ -89,7 +89,7 @@ function createDiffultyColumn(title: string, key: DifficlutyType): DataTableColu
         title: "操作",
         key: `${key}handle`,
         align: "center",
-        width: 120,
+        width: 140,
         render(row, rowIndex) {
           const d = row.difficulties.find((d) => d.name === key);
           if (d && d.level !== 0) {

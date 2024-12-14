@@ -7,31 +7,17 @@
       <n-back-top :right="props.backTopRight" :bottom="20" />
     </n-scrollbar>
     <n-flex justify="center">
-      <audio
-        ref="audioRef"
-        controls
-        oncontextmenu="return false"
-        controlslist="nodownload"
-        :style="{ width: ratio * 880 + 'px', height: '45px' }"
-      />
+      <audio ref="audioRef" controls oncontextmenu="return false" controlslist="nodownload" :style="{ width: ratio * 880 + 'px', height: '45px' }" />
     </n-flex>
   </n-flex>
 </template>
 
 <script setup lang="ts">
-import {
-  BEAT_WIDTH,
-  DrawStrokeAction,
-  MARGIN_X,
-  MARGIN_Y,
-  ROW_HEIGHT,
-  ROW_SPACE,
-  drawBeatmap,
-  Beatmap,
-} from "../scripts/beatmap";
+import { BEAT_WIDTH, DrawStrokeAction, MARGIN_X, MARGIN_Y, ROW_HEIGHT, ROW_SPACE, drawBeatmap, Beatmap } from "../scripts/beatmap";
 import { ratio } from "../scripts/stores/global";
 import type { DifficlutyType, Song } from "@server/types";
 import { NFlex, NScrollbar, NBackTop } from "naive-ui";
+import { ElectronAPIs } from "src/api";
 import { ref, watch } from "vue";
 
 const canvasRef = ref<HTMLCanvasElement>();
@@ -49,15 +35,20 @@ const props = defineProps<{
   updateCount?: number;
 }>();
 
-watch([props, ratio], () => {
+watch([props, ratio], async () => {
   if (!audioRef.value) return;
   if (!canvasRef.value) return;
   const { currentSong, currentDifficulty, showOptions, updateCount } = props;
 
   if (currentSong) {
     if (!updateCount || updateCount === 0) {
-      const { dir, wave } = currentSong;
-      audioRef.value.src = dir + "\\" + wave;
+      const { id, fileType } = currentSong;
+      if ("electronAPI" in window) {
+        const apis = window.electronAPI as ElectronAPIs;
+        const musicBase64 = await apis.loadMusic(id);
+        const blob = base64ToBlob(musicBase64, fileType);
+        audioRef.value.src = window.URL.createObjectURL(blob);
+      }
     }
 
     const showBar = showOptions.includes("bar");
@@ -170,5 +161,31 @@ function getCurrentPos(song: Song, beatmap: Beatmap) {
   }
 
   return { x, y };
+}
+
+/**
+ * desc: base64对象转blob文件对象
+ * @param base64  ：数据的base64对象
+ * @param fileType  ：文件类型 mp3等;
+ * @returns {Blob}：Blob文件对象
+ */
+function base64ToBlob(base64: string, fileType: string) {
+  let typeHeader = "data:application/" + fileType + ";base64,"; // 定义base64 头部文件类型
+  let audioSrc = typeHeader + base64; // 拼接最终的base64
+  let arr = audioSrc.split(",");
+  let array = arr[0].match(/:(.*?);/);
+  let mime = (array && array.length > 1 ? array[1] : fileType) || fileType;
+  // 去掉url的头，并转化为byte
+  let bytes = window.atob(arr[1]);
+  // 处理异常,将ascii码小于0的转换为大于0
+  let ab = new ArrayBuffer(bytes.length);
+  // 生成视图（直接针对内存）：8位无符号整数，长度1个字节
+  let ia = new Uint8Array(ab);
+  for (let i = 0; i < bytes.length; i++) {
+    ia[i] = bytes.charCodeAt(i);
+  }
+  return new Blob([ab], {
+    type: mime,
+  });
 }
 </script>

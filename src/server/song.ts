@@ -17,6 +17,7 @@ export async function loadSongs(root: string, exclude = DEFAULT_EXCLUDE, use1P =
   const stat = await isDir(root);
   if (!stat) return [];
   const songs: Song[] = [];
+  let id = 0;
 
   // 读取类目文件夹
   const genreDirs = readdirSync(root);
@@ -42,21 +43,35 @@ export async function loadSongs(root: string, exclude = DEFAULT_EXCLUDE, use1P =
       const songFiles = readdirSync(songDirPath);
       if (!songFiles.find((s) => s.includes(".tja"))) continue;
 
+      let fileType = "";
+      let wavePath = "";
+      let tjaSrc = "";
       for (const f of songFiles) {
-        if (!f.endsWith("tja")) continue;
-        const songName = f.split(".tja")[0];
-        const song = parseSong(songName, songDirPath, genre, join(songDirPath, f));
-        songs.push(song);
-
-        // 获取分数
-        if (!songFiles.find((s) => (use1P ? s.includes("tja1P.score") : s.includes("tja2P.score")))) continue;
-        const scorePath = use1P ? join(songDirPath, songName + ".tja1P.score.ini") : join(songDirPath, songName + ".tja2P.score.ini");
-        const scores = parseScores(scorePath);
-
-        for (const key in scores) {
-          const d = song.difficulties.find((d) => d.name === key);
-          if (d) d.score = scores[key as DifficlutyType];
+        if (f.endsWith("ogg") || f.endsWith("mp3")) {
+          if (f.endsWith("ogg")) fileType = "ogg";
+          if (f.endsWith("mp3")) fileType = "mp3";
+          wavePath = join(songDirPath, f);
         }
+        if (f.endsWith("tja")) tjaSrc = f;
+      }
+      if (tjaSrc === "") continue;
+      const songName = tjaSrc.split(".tja")[0];
+      const song = parseSong(songName, songDirPath, genre, join(songDirPath, tjaSrc));
+      song.fileType = fileType;
+      song.wavePath = wavePath;
+      song.id = id;
+      id += 1;
+
+      songs.push(song);
+
+      // 获取分数
+      if (!songFiles.find((s) => (use1P ? s.includes("tja1P.score") : s.includes("tja2P.score")))) continue;
+      const scorePath = use1P ? join(songDirPath, songName + ".tja1P.score.ini") : join(songDirPath, songName + ".tja2P.score.ini");
+      const scores = parseScores(scorePath);
+
+      for (const key in scores) {
+        const d = song.difficulties.find((d) => d.name === key);
+        if (d) d.score = scores[key as DifficlutyType];
       }
     }
   }
@@ -71,12 +86,15 @@ function parseBoxDef(path: string) {
 
 function parseSong(songName: string, dir: string, genre: string, filePath: string) {
   const song: Song = {
+    id: 0,
     name: songName,
     dir,
     genre,
     bpm: 0,
     offset: 0,
     wave: "",
+    wavePath: "",
+    fileType: "",
     difficulties: [],
   };
 

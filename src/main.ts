@@ -1,5 +1,6 @@
 import { Song } from "./server/types";
 import { loadSongs, modifySong } from "./server/song";
+import { loadMusic } from "./server/utils";
 import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import path from "node:path";
 
@@ -17,8 +18,8 @@ const createWindow = () => {
     },
   });
 
-  mainWindow.maximize()
-  
+  mainWindow.maximize();
+
   Menu.setApplicationMenu(null);
 
   // and load the index.html of the app.
@@ -37,17 +38,22 @@ const createWindow = () => {
 app.on("ready", () => {
   const mainWindow = createWindow();
   const SONG_PATH = "NODE_ENV" in process.env ? "./Songs" : "../Songs";
+  let songs: Song[] = [];
 
   if ("NODE_ENV" in process.env) mainWindow.webContents.openDevTools();
 
   ipcMain.handle("getSongs", async () => {
-    const songs = await loadSongs(SONG_PATH);
+    songs = await loadSongs(SONG_PATH);
     return songs;
   });
   ipcMain.handle("modifySong", (e: Electron.IpcMainInvokeEvent, song: string) => {
     const songObject = JSON.parse(song) as Song;
     modifySong(songObject);
     return true;
+  });
+  ipcMain.handle("loadMusic", async (e: Electron.IpcMainInvokeEvent, id: number) => {
+    const music = await loadMusic(songs, id);
+    return music;
   });
 });
 

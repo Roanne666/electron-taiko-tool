@@ -43,13 +43,13 @@ export const basicColumns: (DataTableColumn<Song> | DataTableColumnGroup<Song>)[
     title: "类目",
     key: "genre",
     align: "center",
-    width: 150,
+    width: 120,
   },
   {
     title: "曲名",
     key: "name",
     align: "center",
-    width: 250,
+    width: 230,
   },
 ];
 

@@ -11,9 +11,12 @@ export type DifficultyInfo = {
 };
 
 export type Song = {
+  id: number;
   name: string;
   bpm: number;
   wave: string;
+  wavePath: string;
+  fileType: string;
   offset: number;
   dir: string;
   genre: string;

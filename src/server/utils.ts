@@ -1,4 +1,5 @@
-import { statSync } from "fs";
+import { join } from "path";
+import { statSync, createReadStream } from "fs";
 import type { Song } from "./types";
 
 export async function isDir(path: string) {
@@ -37,4 +38,21 @@ export function convertSongToTja(song: Song): string {
   }
 
   return tjaString;
+}
+
+export function loadMusic(songs: Song[], id: number): Promise<string> {
+  return new Promise((resolve) => {
+    const song = songs.find((song) => song.id === id);
+    if (song) {
+      const rs = createReadStream(song.wavePath);
+      const chunks: any[] = [];
+      rs.on("data", (chunk) => chunks.push(chunk));
+      rs.on("end", () => {
+        const bs = Buffer.concat(chunks).toString("base64");
+        resolve(bs);
+      });
+    } else {
+      resolve("");
+    }
+  });
 }
