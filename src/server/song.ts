@@ -66,7 +66,9 @@ export async function loadSongs(root: string, exclude = DEFAULT_EXCLUDE, use1P =
 
       // 获取分数
       if (!songFiles.find((s) => (use1P ? s.includes("tja1P.score") : s.includes("tja2P.score")))) continue;
-      const scorePath = use1P ? join(songDirPath, songName + ".tja1P.score.ini") : join(songDirPath, songName + ".tja2P.score.ini");
+      const scorePath = use1P
+        ? join(songDirPath, songName + ".tja1P.score.ini")
+        : join(songDirPath, songName + ".tja2P.score.ini");
       const scores = parseScores(scorePath);
 
       for (const key in scores) {

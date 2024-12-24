@@ -37,8 +37,9 @@ import {
   MusicalNotesOutline as MusicIcon,
   BarcodeOutline as PreviewIcon,
   CompassOutline as GuideIcon,
+  AnalyticsOutline as AnalysisIcon,
 } from "@vicons/ionicons5";
-import { Edit as EditIcon, FaceCool as RecommendIcon } from "@vicons/carbon";
+import { Edit as EditIcon } from "@vicons/carbon";
 import { h, type Component, Transition, onMounted } from "vue";
 import { fetchAllSongs } from "./scripts/stores/song";
 import { hideSideBar } from "./scripts/stores/global";
@@ -64,6 +65,7 @@ const menuOptions: MenuOption[] = [
   createMenuOption("使用指南", "/", GuideIcon),
   createMenuOption("歌曲成绩", "/score", MusicIcon),
   createMenuOption("谱面预览", "/preview", PreviewIcon),
+  createMenuOption("谱面分析", "/analysis", AnalysisIcon),
   createMenuOption("谱面编辑", "/edit", EditIcon),
 ];
 

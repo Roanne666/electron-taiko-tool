@@ -6,6 +6,7 @@ export class Beatmap {
   public rows: number[];
   public stats;
   public readonly realNotesCount: number;
+  public readonly factor: number;
 
   constructor(beatmapData: string[], songBpm: number) {
     const { bars, changes } = this.parseBeatmapData(beatmapData, songBpm);
@@ -18,6 +19,7 @@ export class Beatmap {
 
     this.stats = this.getStats();
     this.rows = this.getRows();
+    this.factor = this.getFactor();
   }
 
   private parseBeatmapData(beatmapData: string[], songBpm: number) {
@@ -100,7 +102,7 @@ export class Beatmap {
   private sliceBarToBeats(notesArray: number[], measure: number) {
     const newNotesArray = [...notesArray];
 
-    // 如果音符数少于拍子数，则补全音符
+    // 如果音符数少于两倍拍子数，则补全音符
     if (newNotesArray.length === 0) {
       notesArray.length = measure;
       notesArray.fill(0);
@@ -393,5 +395,54 @@ export class Beatmap {
         ],
       },
     };
+  }
+
+  getFactor(): number {
+    // Step 1: 计算加权音符密度
+    let weightedDensitySum = 0;
+
+    // 遍历 speedStats 计算音符密度并累加音符数量
+    this.stats.speedStats.forEach((stat) => {
+      const speed = Number(stat.name);
+      const notes = stat.value;
+
+      // 计算每个速度下的音符密度
+      const density = (notes * speed) / this.realNotesCount; // 音符密度：音符数 * 速度 / 总音符数
+
+      // 累加音符密度的加权和
+      weightedDensitySum += density;
+    });
+
+    // Step 2: 计算加权音符密度的平均值
+    const speedFactor = weightedDensitySum / 40;
+
+    // Step 2: 计算连击的难度系数
+    let comboFactor = 0;
+    for (const combo of this.stats.noteStats) {
+      const noteCount = combo.value;
+
+      // 根据不同combo类型设定不同的难度权重
+      if (combo.name === "散音") {
+        comboFactor += (noteCount * 1.0) / this.realNotesCount; // 散音
+      } else if (combo.name === "二连") {
+        comboFactor += (noteCount * 1.2) / this.realNotesCount; // 二连
+      } else if (combo.name === "三连") {
+        comboFactor += (noteCount * 1.4) / this.realNotesCount; // 三连
+      } else if (combo.name === "四连") {
+        comboFactor += (noteCount * 1.6) / this.realNotesCount; // 四连
+      } else if (combo.name === "五连") {
+        comboFactor += (noteCount * 1.8) / this.realNotesCount; // 五连
+      } else if (combo.name === "鱼蛋") {
+        comboFactor += (noteCount * 2.0) / this.realNotesCount; // 鱼蛋
+      }
+    }
+
+    // Step 3: 计算最终定数
+    let finalConstant = speedFactor + comboFactor;
+
+    // Step 4: 标准化定数，确保定数在合理范围内（假设在0到10之间）
+    finalConstant = Number(Math.max(0, Math.min(finalConstant, 10)).toFixed(1)); // 保证定数在0-10之间
+
+    return finalConstant;
   }
 }

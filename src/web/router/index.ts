@@ -3,6 +3,7 @@ import GuideView from "../views/GuideView.vue";
 import PreviewView from "../views/PreviewView.vue";
 import EditView from "../views/EditView.vue";
 import ScoreView from "../views/ScoreView.vue";
+import AnalysisView from "../views/AnalysisView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,11 @@ const router = createRouter({
       path: "/preview",
       name: "preview",
       component: PreviewView,
+    },
+    {
+      path: "/analysis",
+      name: "analysis",
+      component: AnalysisView,
     },
     {
       path: "/edit",
